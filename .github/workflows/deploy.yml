@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  security-events: write
+
 jobs:
   security-checks:
     runs-on: ubuntu-latest
@@ -13,13 +16,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run CodeQL Security Scan
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
       - name: Run Conftest on Kubernetes Manifests
         run: |
-          wget https://github.com/open-policy-agent/conftest/releases/latest/download/conftest-linux-amd64
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/open-policy-agent/conftest/releases/latest | jq -r .tag_name)
+          wget https://github.com/open-policy-agent/conftest/releases/download/${LATEST_VERSION}/conftest-linux-amd64
           chmod +x conftest-linux-amd64
           ./conftest-linux-amd64 test infra/deployment.yml --policy policy/
 
