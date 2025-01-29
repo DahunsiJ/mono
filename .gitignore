@@ -1,0 +1,11 @@
+node_modules
+logs
+*.log
+.env
+config/
+trivy-results/
+kube-bench-results/
+.git
+.github
+Dockerfile
+.dockerignore
