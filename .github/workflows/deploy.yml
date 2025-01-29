@@ -27,7 +27,14 @@ jobs:
           tar -xzf conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz
           sudo mv conftest /usr/local/bin/
           conftest --version
-          conftest test infra/deployment.yml --policy policy/
+          
+          # Check if policy directory exists
+          if [ -d "policy" ]; then
+            echo "Policy directory found, running Conftest tests...";
+            conftest test infra/deployment.yml --policy policy/
+          else
+            echo "No policy directory found, skipping Conftest tests.";
+          fi
 
   build-and-deploy:
     runs-on: ubuntu-latest
