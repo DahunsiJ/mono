@@ -13,6 +13,9 @@ COPY --chown=appuser:appgroup app/package.json app/package-lock.json ./
 # Switch to the non-root user for security
 USER appuser
 
+# Clean npm cache before installing dependencies
+RUN npm cache clean --force
+
 # Install dependencies
 RUN npm ci --only=production
 

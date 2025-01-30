@@ -57,7 +57,7 @@ jobs:
       - name: Build Docker Image
         run: |
           eval $(minikube -p minikube docker-env)
-          docker build -t dahunsij/secure_mono:latest .
+          docker build --no-cache -t dahunsij/secure_mono:latest .
 
       - name: Scan Image with Trivy
         run: trivy image dahunsij/secure_mono:latest
