@@ -5,7 +5,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: secure_mono
+      app: secure-mono
   policyTypes:
     - Ingress
   ingress:

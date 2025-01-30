@@ -57,9 +57,9 @@ jobs:
         run: |
           eval $(minikube -p minikube docker-env)
           set -e  # Exit on error
-          if ! docker build --no-cache -t dahunsij/secure_mono:latest .; then
+          if ! docker build --no-cache -t dahunsij/secure-mono:latest .; then
             echo "Docker build failed! Running debug commands..."
-            docker run -it --rm dahunsij/secure_mono:latest sh -c "npm install --only=production --loglevel verbose"
+            docker run -it --rm dahunsij/secure-mono:latest sh -c "npm install --only=production --loglevel verbose"
             exit 1  # Force failure for visibility
           fi
 
@@ -94,7 +94,7 @@ jobs:
       #     trivy --version
 
       # - name: Scan Image with Trivy
-      #   run: trivy image dahunsij/secure_mono:latest
+      #   run: trivy image dahunsij/secure-mono:latest
 
       - name: Apply Kubernetes Manifests
         run: |

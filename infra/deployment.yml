@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: secure_mono
+  name: secure-mono
   labels:
-    app: secure_mono
+    app: secure-mono
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: secure_mono
+      app: secure-mono
   template:
     metadata:
       labels:
-        app: secure_mono
+        app: secure-mono
     spec:
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
         fsGroup: 1001
       containers:
-      - name: secure_mono
-        image: dahunsij/secure_mono:latest
+      - name: secure-mono
+        image: dahunsij/secure-mono:latest
         ports:
         - containerPort: 3000
         securityContext:

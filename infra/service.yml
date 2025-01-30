@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: secure_mono_service
+  name: secure-mono_service
 spec:
   selector:
-    app: secure_mono
+    app: secure-mono
   ports:
     - protocol: TCP
       port: 80
