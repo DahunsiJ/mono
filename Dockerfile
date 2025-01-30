@@ -1,11 +1,14 @@
 # Stage 1: Build stage
 FROM node:18 AS build
 
-# Set up a non-root user for security
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+# Set up a non-root user with a valid home directory for security
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup --home /home/appuser appuser
 
 # Set the working directory
 WORKDIR /app
+
+# I've set HOME environment variable for npm to avoid permission issues
+ENV HOME=/home/appuser
 
 # Copy package files and install dependencies securely
 COPY --chown=appuser:appgroup app/package.json app/package-lock.json ./
@@ -16,7 +19,7 @@ USER appuser
 # Clean npm cache before installing dependencies
 RUN npm cache clean --force
 
-# I increase timeout for npm installation
+# I increased timeout for npm installation
 RUN npm config set fetch-timeout 60000
 
 # Install dependencies (I just replaced `npm ci` with `npm install`)
