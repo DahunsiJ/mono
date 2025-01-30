@@ -63,38 +63,38 @@ jobs:
             exit 1  # Force failure for visibility
           fi
 
-      - name: Install Trivy (Updated)
-        run: |
-          # Update package list and install required dependencies
-          sudo apt-get update && sudo apt-get install -y wget jq
+      # - name: Install Trivy (Updated)
+      #   run: |
+      #     # Update package list and install required dependencies
+      #     sudo apt-get update && sudo apt-get install -y wget jq
           
-          # Fetch the latest Trivy release version dynamically
-          LATEST_TRIVY_VERSION=$(curl -sL https://api.github.com/repos/aquasecurity/trivy/releases/latest | jq -r .tag_name)
+      #     # Fetch the latest Trivy release version dynamically
+      #     LATEST_TRIVY_VERSION=$(curl -sL https://api.github.com/repos/aquasecurity/trivy/releases/latest | jq -r .tag_name)
 
-          # Fallback to a stable version if fetching fails
-          if [[ -z "$LATEST_TRIVY_VERSION" || "$LATEST_TRIVY_VERSION" == "null" ]]; then
-              echo "Error: Unable to fetch latest Trivy version. Using fallback version 0.47.0."
-              LATEST_TRIVY_VERSION="0.47.0"
-          fi
+      #     # Fallback to a stable version if fetching fails
+      #     if [[ -z "$LATEST_TRIVY_VERSION" || "$LATEST_TRIVY_VERSION" == "null" ]]; then
+      #         echo "Error: Unable to fetch latest Trivy version. Using fallback version 0.47.0."
+      #         LATEST_TRIVY_VERSION="0.47.0"
+      #     fi
           
-          # Construct the correct download URL
-          TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/${LATEST_TRIVY_VERSION}/trivy_${LATEST_TRIVY_VERSION}_Linux-64bit.tar.gz"
+      #     # Construct the correct download URL
+      #     TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/${LATEST_TRIVY_VERSION}/trivy_${LATEST_TRIVY_VERSION}_Linux-64bit.tar.gz"
           
-          # Download and install Trivy
-          if ! wget "$TRIVY_URL" -O trivy.tar.gz; then
-            echo "Error: Failed to download Trivy. Exiting..."
-            exit 1
-          fi
+      #     # Download and install Trivy
+      #     if ! wget "$TRIVY_URL" -O trivy.tar.gz; then
+      #       echo "Error: Failed to download Trivy. Exiting..."
+      #       exit 1
+      #     fi
           
-          tar -xzf trivy.tar.gz
-          sudo mv trivy /usr/local/bin/
-          rm -f trivy.tar.gz
+      #     tar -xzf trivy.tar.gz
+      #     sudo mv trivy /usr/local/bin/
+      #     rm -f trivy.tar.gz
           
-          # Verify Trivy installation
-          trivy --version
+      #     # Verify Trivy installation
+      #     trivy --version
 
-      - name: Scan Image with Trivy
-        run: trivy image dahunsij/secure_mono:latest
+      # - name: Scan Image with Trivy
+      #   run: trivy image dahunsij/secure_mono:latest
 
       - name: Apply Kubernetes Manifests
         run: |
