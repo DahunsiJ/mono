@@ -57,9 +57,10 @@ jobs:
         run: |
           eval $(minikube -p minikube docker-env)
           set -e  # Exit on error
-          if ! docker images | grep -q "dahunsij/secure-mono:latest"; then
-            echo "Image not found, building it..."
-            docker build --no-cache -t dahunsij/secure-mono:latest .
+          if ! docker build --no-cache -t dahunsij/secure-mono:latest .; then
+            echo "Docker build failed! Running debug commands..."
+            docker run -it --rm dahunsij/secure-mono:latest sh -c "npm install --only=production --loglevel verbose"
+            exit 1  # Force failure for visibility
           fi
 
       - name: Log in to Docker Hub
@@ -67,10 +68,13 @@ jobs:
 
       - name: Push Docker Image
         run: |
+          eval $(minikube -p minikube docker-env)  # Ensure we're using Minikube's Docker
+          
           if ! docker images | grep -q "dahunsij/secure-mono:latest"; then
-            echo "Image not found, skipping push."
-            exit 1
+            echo "Image not found, rebuilding it..."
+            docker build --no-cache -t dahunsij/secure-mono:latest .
           fi
+          
           docker tag dahunsij/secure-mono:latest dahunsij/secure-mono:v1
           docker push dahunsij/secure-mono:v1
 
