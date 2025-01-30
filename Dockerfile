@@ -8,7 +8,7 @@ WORKDIR /app
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
 # Copy package files and install dependencies securely
-COPY --chown=appuser:appgroup package.json package-lock.json ./
+COPY --chown=appuser:appgroup ./app/package.json ./app/package-lock.json ./
 RUN npm ci --only=production
 
 # Copy application code
