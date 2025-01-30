@@ -10,6 +10,9 @@ WORKDIR /app
 # I've set HOME environment variable for npm to avoid permission issues
 ENV HOME=/home/appuser
 
+# Ensure npm directories are writable
+RUN mkdir -p /home/appuser/.npm && chown -R appuser:appgroup /home/appuser/.npm
+
 # Copy package files and install dependencies securely
 COPY --chown=appuser:appgroup app/package.json app/package-lock.json ./
 
@@ -22,8 +25,11 @@ RUN npm cache clean --force
 # I increased timeout for npm installation
 RUN npm config set fetch-timeout 60000
 
+# Force a clean install
+RUN rm -rf node_modules package-lock.json
+
 # Install dependencies (I just replaced `npm ci` with `npm install`)
-RUN npm install --only=production
+RUN npm install --only=production --loglevel verbose
 
 # Copy the remaining application files
 COPY --chown=appuser:appgroup app/ ./ 

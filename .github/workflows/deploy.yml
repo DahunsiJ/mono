@@ -28,7 +28,6 @@ jobs:
           sudo mv conftest /usr/local/bin/
           conftest --version
           
-          # Check if policy directory exists
           if [ -d "policy" ]; then
             echo "Policy directory found, running Conftest tests...";
             conftest test infra/deployment.yml --policy policy/
@@ -54,10 +53,15 @@ jobs:
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
-      - name: Build Docker Image
+      - name: Build Docker Image (with Debugging)
         run: |
           eval $(minikube -p minikube docker-env)
-          docker build --no-cache -t dahunsij/secure_mono:latest .
+          set -e  # Exit on error
+          if ! docker build --no-cache -t dahunsij/secure_mono:latest .; then
+            echo "Docker build failed! Running debug commands..."
+            docker run -it --rm dahunsij/secure_mono:latest sh -c "npm install --only=production --loglevel verbose"
+            exit 1  # Force failure for visibility
+          fi
 
       - name: Scan Image with Trivy
         run: trivy image dahunsij/secure_mono:latest
@@ -69,5 +73,4 @@ jobs:
           kubectl apply -f infra/ingress.yml
 
       - name: Verify Deployment
-        run: |
-          kubectl get pods -o wide
+        run: kubectl get pods -o wide
