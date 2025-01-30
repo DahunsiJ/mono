@@ -16,11 +16,14 @@ USER appuser
 # Clean npm cache before installing dependencies
 RUN npm cache clean --force
 
-# Install dependencies
-RUN npm ci --only=production
+# I increase timeout for npm installation
+RUN npm config set fetch-timeout 60000
+
+# Install dependencies (I just replaced `npm ci` with `npm install`)
+RUN npm install --only=production
 
 # Copy the remaining application files
-COPY --chown=appuser:appgroup app/ ./
+COPY --chown=appuser:appgroup app/ ./ 
 
 # Build the application
 RUN npm run build
