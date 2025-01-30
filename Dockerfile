@@ -19,7 +19,7 @@ COPY app/package.json app/package-lock.json ./
 # Ensure correct permissions for cleanup operations
 RUN chmod -R u+w package-lock.json
 
-# Run the cleanup before installing dependencies  
+# Run the cleanup before installing dependencies   
 RUN rm -rf node_modules package-lock.json
 
 # Install dependencies securely with a clean slate
