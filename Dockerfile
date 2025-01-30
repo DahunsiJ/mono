@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM node:18 as build
+FROM node:18 AS build
 
 # Set up a non-root user for security
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
@@ -8,13 +8,18 @@ RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 WORKDIR /app
 
 # Copy package files and install dependencies securely
-COPY --chown=appuser:appgroup package.json package-lock.json ./
+COPY --chown=appuser:appgroup app/package.json app/package-lock.json ./
+
+# Switch to the non-root user for security
+USER appuser
+
+# Install dependencies
 RUN npm ci --only=production
 
 # Copy the remaining application files
-COPY --chown=appuser:appgroup . .
+COPY --chown=appuser:appgroup app/ ./
 
-# Build the application 
+# Build the application
 RUN npm run build
 
 # Stage 2: Production stage
@@ -26,12 +31,8 @@ WORKDIR /app
 # Copy built application and dependencies from the build stage
 COPY --from=build --chown=nonroot:nonroot /app /app
 
-# Preserve the user and group details
-COPY --from=build /etc/passwd /etc/passwd
-COPY --from=build /etc/group /etc/group
-
 # Use non-root user for better security
-USER appuser
+USER nonroot
 
 # Expose the application port
 EXPOSE 4000
