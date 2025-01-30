@@ -20,22 +20,19 @@ jobs:
         with:
           languages: javascript
 
-      - name: Install Conftest
+      - name: Run Conftest on Kubernetes Manifests
         run: |
-          sudo apt-get update && sudo apt-get install -y wget jq
           LATEST_VERSION=$(curl -s https://api.github.com/repos/open-policy-agent/conftest/releases/latest | jq -r .tag_name | sed 's/v//')
-          wget https://github.com/open-policy-agent/conftest/releases/download/v${LATEST_VERSION}/conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz
+          curl -LO https://github.com/open-policy-agent/conftest/releases/download/v${LATEST_VERSION}/conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz
           tar -xzf conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz
           sudo mv conftest /usr/local/bin/
           conftest --version
-
-      - name: Run Conftest on Kubernetes Manifests
-        run: |
+          
           if [ -d "policy" ]; then
-            echo "Policy directory found, running Conftest tests..."
+            echo "Policy directory found, running Conftest tests...";
             conftest test infra/deployment.yml --policy policy/
           else
-            echo "No policy directory found, skipping Conftest tests."
+            echo "No policy directory found, skipping Conftest tests.";
           fi
 
   build-and-deploy:
@@ -49,19 +46,17 @@ jobs:
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
           chmod +x minikube && sudo mv minikube /usr/local/bin/
-          sudo minikube start --driver=docker
+          minikube start --driver=docker
 
       - name: Set up kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-          kubectl version --client
 
       - name: Build Docker Image (with Debugging)
         run: |
           eval $(minikube -p minikube docker-env)
           set -e  # Exit on error
-          echo "Building Docker image..."
           if ! docker build --no-cache -t dahunsij/secure_mono:latest .; then
             echo "Docker build failed! Running debug commands..."
             docker run -it --rm dahunsij/secure_mono:latest sh -c "npm install --only=production --loglevel verbose"
@@ -70,13 +65,11 @@ jobs:
 
       - name: Install Trivy
         run: |
-          sudo apt-get update && sudo apt-get install -y wget jq
+          sudo apt-get update && sudo apt-get install -y wget
           LATEST_TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | jq -r .tag_name)
-          TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/${LATEST_TRIVY_VERSION}/trivy_Linux-64bit.tar.gz"
-          wget "$TRIVY_URL" -O trivy.tar.gz
-          tar -xzf trivy.tar.gz
+          wget https://github.com/aquasecurity/trivy/releases/download/${LATEST_TRIVY_VERSION}/trivy_Linux-64bit.tar.gz
+          tar -xzf trivy_Linux-64bit.tar.gz
           sudo mv trivy /usr/local/bin/
-          rm -f trivy.tar.gz
           trivy --version
 
       - name: Scan Image with Trivy
