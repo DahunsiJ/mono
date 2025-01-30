@@ -46,7 +46,7 @@ jobs:
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
           chmod +x minikube && sudo mv minikube /usr/local/bin/
-          minikube start --driver=docker
+          minikube start --driver=docker --force
 
       - name: Set up kubectl
         run: |
@@ -63,13 +63,24 @@ jobs:
             exit 1  # Force failure for visibility
           fi
 
-      - name: Install Trivy
+      - name: Install Trivy (Updated)
         run: |
-          sudo apt-get update && sudo apt-get install -y wget
+          # Update package list and install required dependencies
+          sudo apt-get update && sudo apt-get install -y wget jq
+          
+          # Fetch the latest Trivy release version dynamically
           LATEST_TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | jq -r .tag_name)
-          wget https://github.com/aquasecurity/trivy/releases/download/${LATEST_TRIVY_VERSION}/trivy_Linux-64bit.tar.gz
-          tar -xzf trivy_Linux-64bit.tar.gz
+          
+          # Construct the correct download URL
+          TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/${LATEST_TRIVY_VERSION}/trivy_Linux-64bit.tar.gz"
+          
+          # Download and install Trivy
+          wget "$TRIVY_URL" -O trivy.tar.gz
+          tar -xzf trivy.tar.gz
           sudo mv trivy /usr/local/bin/
+          rm -f trivy.tar.gz
+          
+          # Verify Trivy installation
           trivy --version
 
       - name: Scan Image with Trivy
