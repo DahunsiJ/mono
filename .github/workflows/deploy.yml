@@ -92,10 +92,10 @@ jobs:
           
           if ! docker images | grep -q "dahunsij/secure-mono:latest"; then
             echo "Image not found in Minikube's Docker. Pulling from Docker Hub..."
-            docker pull dahunsij/secure-mono:latest
+            docker pull dahunsij/secure-mono
           fi
           
-          trivy image dahunsij/secure-mono:latest
+          trivy image dahunsij/secure-mono
 
       - name: Apply Kubernetes Manifests
         run: |
