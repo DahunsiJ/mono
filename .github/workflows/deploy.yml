@@ -53,13 +53,18 @@ jobs:
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
+      - name: Determine Image Tag
+        run: |
+          TAG_VERSION=$(curl -s https://hub.docker.com/v2/repositories/dahunsij/secure-mono/tags | jq -r '[.results[].name | select(test("^[0-9]+$"))] | max | tonumber + 1' || echo 1)
+          echo "TAG_VERSION=$TAG_VERSION" >> $GITHUB_ENV
+
       - name: Build Docker Image (with Debugging)
         run: |
           eval $(minikube -p minikube docker-env)
           set -e  # Exit on error
-          if ! docker build --no-cache -t dahunsij/secure-mono:latest .; then
+          if ! docker build --no-cache -t dahunsij/secure-mono:$TAG_VERSION .; then
             echo "Docker build failed! Running debug commands..."
-            docker run -it --rm dahunsij/secure-mono:latest sh -c "npm install --only=production --loglevel verbose"
+            docker run -it --rm dahunsij/secure-mono:$TAG_VERSION sh -c "npm install --only=production --loglevel verbose"
             exit 1  # Force failure for visibility
           fi
 
@@ -69,14 +74,9 @@ jobs:
       - name: Push Docker Image
         run: |
           eval $(minikube -p minikube docker-env)  # Ensure we're using Minikube's Docker
-          
-          if ! docker images | grep -q "dahunsij/secure-mono:latest"; then
-            echo "Image not found, rebuilding it..."
-            docker build --no-cache -t dahunsij/secure-mono:latest .
-          fi
-          
-          docker tag dahunsij/secure-mono:latest dahunsij/secure-mono:v1
-          docker push dahunsij/secure-mono:v1
+          docker tag dahunsij/secure-mono:$TAG_VERSION dahunsij/secure-mono:latest
+          docker push dahunsij/secure-mono:$TAG_VERSION
+          docker push dahunsij/secure-mono:latest
 
       - name: Install Trivy
         run: |
@@ -90,12 +90,15 @@ jobs:
         run: |
           eval $(minikube -p minikube docker-env)  # Ensure Minikube's Docker is active
           
-          if ! docker images | grep -q "dahunsij/secure-mono:latest"; then
+          if ! docker images | grep -q "dahunsij/secure-mono:$TAG_VERSION"; then
             echo "Image not found in Minikube's Docker. Pulling from Docker Hub..."
-            docker pull dahunsij/secure-mono
+            if ! docker pull dahunsij/secure-mono:$TAG_VERSION; then
+              echo "Failed to pull image from Docker Hub. Ensure the tag exists."
+              exit 1
+            fi
           fi
           
-          trivy image dahunsij/secure-mono
+          trivy image dahunsij/secure-mono:$TAG_VERSION
 
       - name: Apply Kubernetes Manifests
         run: |
