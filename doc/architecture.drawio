@@ -1,0 +1,51 @@
+# Secure DevSecOps Architecture - Mono CI/CD Deployment
+
+## **Overview**
+This document provides an in-depth explanation of the **Secure DevSecOps Architecture** for the Mono CI/CD pipeline deployment. The architecture enforces security best practices at every stage of development, from **code scanning** to **secure Kubernetes deployment using Minikube**.
+
+## **Architectural Diagram**
+The following diagram illustrates the CI/CD pipeline and the security layers integrated into the workflow:
+
+📌 **[Insert architecture.drawio Diagram Here]**
+
+## **Key Components**
+### **1. CI/CD Workflow - GitHub Actions**
+- **Developer commits code** → GitHub Actions triggers the pipeline.
+- **Security Scans run before deployment:**
+  - ✅ **CodeQL** - Detects vulnerabilities in source code.
+  - ✅ **Conftest** - Ensures Kubernetes manifests adhere to security policies.
+  - ✅ **Trivy** - Scans container images for vulnerabilities.
+
+### **2. Docker Image Build & Push**
+- **Secure Docker Build:**
+  - Uses a **distroless base image** to reduce attack surface.
+  - Runs container as a **non-root user**.
+- **Docker Hub Repository:**
+  - Stores the container image before Kubernetes deployment.
+
+### **3. Kubernetes Deployment (Minikube)**
+- **Minikube** is used to simulate a cloud-native Kubernetes environment.
+- The deployment follows security-first principles:
+  - 🔐 **RBAC (Role-Based Access Control):** Enforces least privilege access.
+  - 🌐 **Network Policies:** Restricts inter-pod communication.
+  - 🛑 **Pod Security Policies:** Prevents privilege escalation and root access.
+  - 📊 **Kube-bench:** Ensures Kubernetes security compliance.
+
+## **Security Best Practices Implemented**
+- **RBAC Policies** - Limits permissions to necessary users/services.
+- **Pod Security Context** - Enforces non-root execution.
+- **Image Scanning (Trivy)** - Prevents deployment of vulnerable containers.
+- **GitHub Secrets Management** - Protects sensitive credentials.
+- **Minimized Attack Surface** - Uses a lightweight, secured base image.
+
+## **Future Enhancements**
+- **Integrate GitOps** using ArgoCD for secure deployments.
+- **Continuous Threat Monitoring** with Falco for runtime security.
+- **Advanced Policy Enforcement** with Open Policy Agent (OPA).
+
+## **Conclusion**
+This architecture ensures a **secure, automated, and scalable DevSecOps pipeline** for deploying applications with **Kubernetes on Minikube**. By integrating security at every phase, this design prevents vulnerabilities from reaching production and enforces best DevSecOps practices.
+
+**Author:** Justus  
+**Date:** January 31, 2025
+
