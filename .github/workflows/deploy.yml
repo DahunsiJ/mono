@@ -87,7 +87,15 @@ jobs:
           trivy --version
 
       - name: Scan Image with Trivy
-        run: trivy image dahunsij/secure-mono:latest
+        run: |
+          eval $(minikube -p minikube docker-env)  # Ensure Minikube's Docker is active
+          
+          if ! docker images | grep -q "dahunsij/secure-mono:latest"; then
+            echo "Image not found in Minikube's Docker. Skipping Trivy scan."
+            exit 1
+          fi
+          
+          trivy image dahunsij/secure-mono:latest
 
       - name: Apply Kubernetes Manifests
         run: |
