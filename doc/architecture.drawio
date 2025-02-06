@@ -6,7 +6,7 @@ This document provides an in-depth explanation of the **Secure DevSecOps Archite
 ## **Architectural Diagram**
 The following diagram illustrates the CI/CD pipeline and the security layers integrated into the workflow:
 
-📌 **https://github.com/DahunsiJ/mono/blob/main/doc/architecture.png**
+📌 **![Secure DevSecOps Architecture](./architecture.png)**
 
 ## **Key Components**
 ### **1. CI/CD Workflow - GitHub Actions**
