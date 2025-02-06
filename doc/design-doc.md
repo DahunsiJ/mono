@@ -5,7 +5,7 @@ This document describes the **DevSecOps architecture** for the **Mono CI/CD Secu
 The design focuses on **security at every stage**, from **code scanning** to **secure Kubernetes deployment**.
 
 ## **2. Architectural Diagram**
-![Secure DevSecOps Architecture](./Secure_DevSecOps_Architecture.drawio.png)
+![Secure DevSecOps Architecture](./architecture..png)
 
 ## **3. Key Components**
 ### **a. CI/CD Pipeline - GitHub Actions**
